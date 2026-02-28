@@ -14,9 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class SectionController {
   constructor(private sectionService: SectionService) {}
 
-  /*
-   POST /sections/:formId
-   */
+  
   @Post(':formId')
   create(
     @Param('formId') formId: string,
@@ -28,9 +26,6 @@ export class SectionController {
     );
   }
 
-  /*
-   DELETE /sections/:sectionId
-   */
   @Delete(':sectionId')
   delete(
     @Param('sectionId') sectionId: string,
