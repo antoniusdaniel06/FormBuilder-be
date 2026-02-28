@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  CHECKBOX
+  SHORT_ANSWER
+  PARAGRAPH
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  responses Response[] 
+  forms     Form[]
+}
+
+model Form {
+  id          String   @id @default(uuid())
+  title       String   @default("Untitled Form")
+  description String?
+  imageUrl    String?
+  published   Boolean  @default(false)
+  accResponse Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sections    Section[]
+  responses   Response[]  
+  onlyOnce    Boolean @default(false)
+
+  @@map("forms")
+}
+
+model Section {
+  id        String   @id @default(uuid())
+  title     String   @default("Untitled Section")
+  order     Int
+
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  questions Question[]
+
+  @@map("sections")
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  title     String   @default("Untitled Question")
+  type      QuestionType @default(MULTIPLE_CHOICE)
+  required  Boolean  @default(false)
+  order     Int
+
+  sectionId String
+  section   Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  options   Option[]
+  answers   Answer[]  
+
+  @@map("questions")
+}
+
+model Option {
+  id         String   @id @default(uuid())
+  label      String   @default("Option 1")
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  // untuk multiple choice (single select)
+  answers    Answer[] @relation("SingleSelect")
+
+  // untuk checkbox (multi select)
+  checkboxAnswers Answer[] @relation("CheckboxSelections")
+
+  @@map("options")
+}
+
+model Response {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers   Answer[]
+
+
+}
+
+model Answer {
+  id          String   @id @default(uuid())
+
+  responseId  String
+  response    Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  // Short / Paragraph
+  textValue   String?
+
+  // Multiple choice (single select)
+  selectedOptionId String?
+  selectedOption   Option? @relation("SingleSelect", fields: [selectedOptionId], references: [id])
+
+  // Checkbox (multi select)
+  selectedOptions Option[] @relation("CheckboxSelections")
+
+  @@map("answers")
+}
