@@ -9,12 +9,8 @@ async function bootstrap() {
 
   // CORS (lebih aman kalau spesifik)
   app.enableCors({
-    origin: [
-      'http://localhost:5173', // frontend dev (Vite)
-      'https://frontend-kamu.vercel.app', 
-    ],
-    credentials: true,
-  });
+  origin: '*',
+});
 
   // Validation
   app.useGlobalPipes(new ValidationPipe());
