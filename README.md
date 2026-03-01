@@ -23,7 +23,7 @@
 ## 🛠️ Tech Stack
 
 * **Node.js**
-* **Express.js / NestJS** (sesuaikan dengan project kamu)
+* **NestJS** 
 * **Prisma ORM**
 * **PostgreSQL**
 * **JWT Authentication**
